@@ -1,4 +1,4 @@
-magento-dashing
+magento-geckoboard
 ===============
 
-Dashing (http://shopify.github.io/dashing/) module for Magento
+Geckoboard module for Magento
