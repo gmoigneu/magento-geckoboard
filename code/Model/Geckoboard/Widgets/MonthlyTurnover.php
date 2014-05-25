@@ -28,7 +28,46 @@
  * @license     The MIT License (MIT)
  */
 
-class Nls_Geckoboard_Helper_Data  extends Mage_Core_Helper_Abstract
+class Nls_Geckoboard_Model_Geckoboard_Widgets_MonthlyTurnover extends Nls_Geckoboard_Model_Geckoboard_Widgets_Abstract
 {
+  public function getData() {
 
+    $orderCollection = Mage::getModel('sales/order')->getCollection()
+      ->addFieldToFilter('state', 'processing')
+      ->addFieldToFilter('created_at', array('from' => date('Y-m-01') . ' 00:00:00', 'date' => true));
+
+    $turnover = 0;
+
+    foreach ($orderCollection as $order) {
+      $turnover += $order->getGrandTotal();
+    }
+
+    $lastMonthOrderCollection = Mage::getModel('sales/order')->getCollection()
+      ->addFieldToFilter('state', 'processing')
+      ->addFieldToFilter('created_at', array('from' => date("Y-m-01", strtotime("first day of previous month")), 'to' => date("Y-m-t", strtotime("first day of previous month")), 'date' => true));
+
+    $lastMonthTurnover = 0;
+
+    foreach ($lastMonthOrderCollection as $order) {
+      $lastMonthTurnover += $order->getGrandTotal();
+    }
+
+    $data = array(
+      "item" => array(
+        array(
+          "text" => '',
+          "value" => $turnover,
+          "prefix" => '€'
+        ),
+        array(
+          "text" => '',
+          "value" => $lastMonthTurnover,
+          "prefix" => '€'
+        )
+      )
+    );
+
+    return $data;
+
+  }
 }

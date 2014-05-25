@@ -28,51 +28,68 @@
  * @license     The MIT License (MIT)
  */
 
-class Nls_Geckoboard_Model_Observer
+class Nls_Geckoboard_Model_Geckoboard_Client
 {
+  /**
+   * @var \Guzzle\Http\Client
+   */
+  protected $client;
 
+  /**
+   * @var string
+   */
+  protected $apiKey;
 
-    /**
-     * Send notification when an order is placed
-     * @param   Varien_Event_Observer $observer
-     */
-    public function sendOrderSuccessNotification($observer)
+  /**
+   * @var string
+   */
+  protected $baseUrl;
+
+  /**
+   * @var array
+   */
+  protected $widgets;
+
+  /**
+   * Construct a new Geckoboard Client
+   */
+  public function __construct()
+  {
+      $this->_apiKey = Mage::getStoreConfig('nlsgeckoboard/geckoboard/apikey', Mage::app()->getStore());
+      $this->_baseUrl = Mage::getStoreConfig('nlsgeckoboard/geckoboard/baseurl', Mage::app()->getStore());
+      $this->_widgets = array('DailyTurnover', 'MonthlyTurnover', 'OrdersCount', 'OrdersPendingCount', 'LastOrder', 'Subscribers');
+  }
+
+  public function update()
+  {
+    foreach($this->_widgets as $widget)
     {
-      $event = $observer->getEvent();
-      $order = $observer->getEvent()->getOrder();
-
-      $items = $order->getItemsCollection();
-      $str = "";
-      foreach($items as $item) {
-        $str .= $item->getName() . ' (' . $item->getSku() . ') <br />';
+      // Check if widget has an ID
+      $id = Mage::getStoreConfig('nlsgeckoboard/geckoboard_widgets/'.strtolower($widget).'_widget', Mage::app()->getStore());
+      if(strlen($id) > 2)
+      {
+        $class = 'Nls_Geckoboard_Model_Geckoboard_Widgets_'.$widget;
+        if(class_exists($class)) {
+          $this->push($id, new $class);
+        }
       }
-
-      $data = array(
-        "api_key" => $this->_apikey,
-        "data" => array(
-          "item" => array(
-            "text" =>  __("#%s à %s<br />Total : %s<br />%s<br />Merci à %s de %s !",
-              $order->getIncrementId(),
-              $order->getCreatedAt(),
-              $order->getGrandTotal().' '.$order->getOrderCurrencyCode(),
-              $str,
-              $order->getCustomerFirstname().' '.$order->getCustomerLastname(),
-              $order->getBillingAddress()->getCity()
-            )
-          )
-        )
-      );
-      $this->sendUpdate($data, '61242-310db7c7-f4b6-466c-baa0-f14d4876f44b');
     }
+  }
 
+  /**
+   * Send the widget info to Geckboard
+   *
+   * @param Widget $widget
+   * @return $this
+   */
+  private function push($id, $widget)
+  {
+      $message = array(
+          'api_key' => $this->_apiKey,
+          'data' => $widget->getData()
+      );
 
-    /**
-     * Generic curl call to Geckoboard
-     * @param  string $message The message to send
-     */
-    public function sendUpdate($message, $widget)
-    {
-      $ch = curl_init($this->_baseurl.$widget);
+      $ch = curl_init($this->_baseUrl . $id);
       $call = curl_setopt_array($ch, array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT_MS => 1000,
@@ -80,5 +97,5 @@ class Nls_Geckoboard_Model_Observer
       ));
       curl_exec($ch);
       curl_close($ch);
-    }
+  }
 }

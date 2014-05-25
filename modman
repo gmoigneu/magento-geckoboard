@@ -1,2 +1,4 @@
 code                  app/code/community/Nls/Geckoboard/
 Nls_Geckoboard.xml    app/etc/modules/
+lib/php-geckoboard-api-master lib/php-geckoboard-api-master
+lib/guzzle lib/guzzle

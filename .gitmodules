@@ -1,0 +1,3 @@
+[submodule "lib/guzzle"]
+	path = lib/guzzle
+	url = https://github.com/guzzle/guzzle

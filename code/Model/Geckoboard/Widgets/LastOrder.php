@@ -28,7 +28,41 @@
  * @license     The MIT License (MIT)
  */
 
-class Nls_Geckoboard_Helper_Data  extends Mage_Core_Helper_Abstract
+class Nls_Geckoboard_Model_Geckoboard_Widgets_LastOrder extends Nls_Geckoboard_Model_Geckoboard_Widgets_Abstract
 {
+  public function getData() {
 
+    $status = explode(',', Mage::getStoreConfig('nlsgeckoboard/geckoboard/order_status', Mage::app()->getStore()));
+
+    $ordersCollection = Mage::getModel('sales/order')->getCollection()
+      ->addFieldToFilter('state', 'processing')
+      ->addFieldToFilter('created_at', array('from' => date('Y-m-d') . ' 00:00:00', 'date' => true))
+      ->addAttributeToSort('created_at', 'DESC')
+      ->addFieldToFilter('status', array('in' => $status))
+      ->setPageSize(1);
+
+    $order = $ordersCollection->getFirstItem();
+
+    $items = $order->getItemsCollection();
+    $str = "";
+    foreach($items as $item) {
+      $str .= $item->getName() . ' (' . $item->getSku() . ') <br />';
+    }
+
+    $data = array(
+      "item" => array(
+        "text" =>  __("#%s à %s<br />Total : %s<br />%s<br />Merci à %s de %s !",
+          $order->getIncrementId(),
+          $order->getCreatedAt(),
+          $order->getGrandTotal().' '.$order->getOrderCurrencyCode(),
+          $str,
+          $order->getCustomerFirstname().' '.$order->getCustomerLastname(),
+          $order->getBillingAddress()->getCity()
+        )
+      )
+    );
+
+    return $data;
+
+  }
 }
