@@ -16,6 +16,11 @@ Geckoboard (http://www.geckoboard.com/) module for Magento
 
 ## Installation
 
+### Prerequisites
+
+- libcurl
+- php5-curl
+
 ### With [modman](https://github.com/colinmollenhour/modman) :
 
     modman clone git@github.com:gmoigneu/magento-geckoboard.git
@@ -39,3 +44,8 @@ Create custom widgets in your Geckoboard Dashboard that match the type of the wi
 ![Config](https://raw.github.com/gmoigneu/magento-geckoboard/doc/magentoconfig.png)
 
 **The update is asynchronous every minute through the Magento cron system.**
+
+## Todo
+
+- Use Guzzle instead of curl
+- Use more sophisticated widgets
