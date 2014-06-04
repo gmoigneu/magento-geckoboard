@@ -93,7 +93,8 @@ class Nls_Geckoboard_Model_Geckoboard_Client
       $call = curl_setopt_array($ch, array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT_MS => 1000,
-        CURLOPT_POSTFIELDS => json_encode($message)
+        CURLOPT_POSTFIELDS => json_encode($message),
+        CURLOPT_SSL_VERIFYPEER => false
       ));
       curl_exec($ch);
       curl_close($ch);
